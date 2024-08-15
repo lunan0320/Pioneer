@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.ABC.pioneer.sensor">
+
+    <!-- Must support Bluetooth LE -->
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="true" />
+
+    <!-- Permissions for Bluetooth LE as background process -->
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <!-- Foreground service for Bluetooth LE as background process -->
+    <application>
+        <service
+            android:name="com.ABC.pioneer.sensor.service.ForegroundService"
+            android:foregroundServiceType="location" />
+        <service
+            android:name="com.ABC.pioneer.sensor.service.CustomTimer"/>
+    </application>
+</manifest>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingVertical="8dp"
+    android:paddingHorizontal="10dp">
+
+        <TextView
+            android:id="@+id/targetTextLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:text="TextLabel"/>
+        <TextView
+            android:id="@+id/targetDetailedTextLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:text="更新时间：停止更新"/>
+
+
+
+
+
+
+</LinearLayout>
+

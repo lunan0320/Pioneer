@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape>
+            <gradient android:startColor="@color/white" android:endColor="@color/white"
+                android:angle="90"/>  <!--背景颜色-->
+            <stroke android:width="1dip" android:color="@color/systemBlue"/><!--边框宽度及颜色-->
+            <corners android:radius="10dp"/><!--圆角-->
+            <padding android:left="5dp" android:top="5dp" android:right="5dp" android:bottom="5dp"/>
+        </shape>
+    </item>
+</selector>

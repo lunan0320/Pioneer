@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<resources>
+    <string name="app_name">Pioneer</string>
+
+    <!-- Name of the Android notification channel. -->
+    <string name="notification_channel_name">Pioneer Status</string>
+
+    <string name="notification_channel_description">Notifications for current status of Pioneer</string>
+
+    <!-- Content title for foreground service notification -->
+    <string name="notification_content_title">接触追踪 </string>
+
+    <!-- Content text for foreground service notification -->
+    <string name="notification_content_text">传感器运行中</string>
+
+    <string name="warning_notification_content_title">接触警告</string>
+    <string name="warning_notification_content_text">传感器检测到您与感染者有接触过,请及时到医院进行核酸检测</string>
+</resources>
