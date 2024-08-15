@@ -1,10 +1,11 @@
-@[TOC]
+[TOC]
 
 ### Workflow工作流程
 
 <p align="center">
-    <img src="https://cdn.jsdelivr.net/gh/lunan0320/pics@main/images/202408/image-20240815194604688.png" alt="Centered Image">
+    <img src="https://cdn.jsdelivr.net/gh/lunan0320/pics@main/images/202408/image-20240815195426801.png" alt="Centered Image">
 </p>
+
 
 ------
 
@@ -35,7 +36,7 @@
 
 #### 使用指南
 
-##### 注册
+##### 1.注册
 
 1. 打开app 后，首先会进入登录界面。首次打开app，用户还没有注册，不能登录，必须要进行`注册`，点击注册按钮即可进入注册界面。
 
@@ -45,7 +46,7 @@
 
 3. 如果提示`SecretKey` 重复，已重新生成，请再次点击”说明用户app 自动生成的SecretKey 和其他人的重复了，这时app会自动在本地在生成一个新的SecretKey 并覆盖之前的。用户可以再次点击注册用手机号和新的SecretKey 绑定进行注册。
 
-##### 发现
+##### 2.发现
 
 1. 用户登录后，app 才开始运行。App 会`自动广播`同时进行扫描，探测周围的开启蓝牙的设备，如果app 通过`UUID` 找到安装相同app 的设备，就会建立连接并交换数据。
 2. 用户在“发现”界面可以看到`蓝牙扫描信息`和收到的其他用户的数据包的短名称。列表中会显示数据包的接收时间和最后一次更新时间，当数据包不再更新时，就会显示“停止更新”。点击列表中的数据包，就可以显示出数据包的有效期和`ContactIdentifier`。
@@ -54,7 +55,7 @@
     <img src="https://cdn.jsdelivr.net/gh/lunan0320/pics@main/images/202408/image-20240815191846920.png" width="200" height="350" alt="Centered Image">
 </p>
 
-##### 感染者信息报告
+##### 3.感染者信息报告
 
 1. 在`Token`界面有一个Token按钮，点击按钮就可以进入Token 验证界面。
 2. Token 验证是用来**上传感染者信息**的，如果用户被确诊为感染者，医院的医护人员会交给用户一个Token 验证码。
@@ -64,7 +65,7 @@
     <img src="https://cdn.jsdelivr.net/gh/lunan0320/pics@main/images/202408/image-20240815193205024.png" width="200" height="350" alt="Centered Image">
 </p>
 
-##### 用户界面
+##### 4.用户界面
 
 ​	在“我”界面。用户可以查看自己手机的**型号**和当前这个**时段**，即当前所处的这**6 分钟内**的数据包的短名称。
 
@@ -72,7 +73,7 @@
     <img src="https://cdn.jsdelivr.net/gh/lunan0320/pics@main/images/202408/image-20240815193830859.png" width="200" height="350" alt="Centered Image">
 </p>
 
-##### 安全报告
+##### 5.安全报告
 
 1. App 每天早上8 点会定时**从服务器下载感染者信息**在本地进行**匹配**。当找到匹配时，会弹出提示信息“传感器检测到您与感染者有过接触，请及时到医院进行核酸检测。”
 
