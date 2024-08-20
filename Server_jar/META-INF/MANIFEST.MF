@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Main-Class: org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader
+Rsrc-Class-Path: ./ mysql-connector-java-5.1.49-bin.jar org.junit_4.13.0
+ .v20200204-1500.jar org.hamcrest.core_1.3.0.v20180420-1519.jar
+Rsrc-Main-Class: com.controller.PioneerServer
+Class-Path: .
+
