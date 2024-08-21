@@ -1,6 +1,6 @@
 [TOC]
 
-### Workflow工作流程
+### 1. Workflow工作流程
 
 <p align="center">
     <img src="https://cdn.jsdelivr.net/gh/lunan0320/pics@main/images/202408/image-20240815195426801.png" alt="Centered Image">
@@ -9,7 +9,7 @@
 
 ------
 
-### Pioneer for Android 指南
+### 2. Pioneer for Android 指南
 
 #### 简介
 
@@ -96,3 +96,91 @@
 <p align="center">
     <img src="https://cdn.jsdelivr.net/gh/lunan0320/pics@main/images/202408/image-20240815193223637.png" alt="Centered Image">
 </p>
+
+------
+
+### 3. Pioneer for IOS 指南
+
+#### 简介
+
+​	Pioneer for iOS 是低成本病毒追踪系统Pioneer的终端，其服务于iOS 系统下（主要是iPhone 设备）的联系人追踪并将用户的风险接触信息安全地报告给Pioneer 服务器，同时用户也可以随时从服务器中了解到自身的近期安全状态，以便快速做出反应终止风险的继续传播。
+
+#### 主要特点
+
+1. 安全的隐私保障。
+2. 有效的交互保障。Pioneer 主要使用低功耗蓝牙传感器，可选地辅以iOS 的iBeacon 和位置传感器，并通过多种技术方法使设备之间的检测率达到90%以上，同时也提供93%以上的连续性测量以给出较为准确的接触数据。
+3. 较高的覆盖范围。Pioneer for iOS 对iPhone 系统版本的最低要求是iOS 12.0，正如iOS 框架Network 要求的那样，这可以达到94%的适用率，即可支持最早的iPhone 5S 之后的iPhone 手机。针对iOS-iOS 的部署率可以达到94% × 94% =88.36%。
+4. 较低的功耗使用。经过基于iPhone XS 的电池标准的测试，Pioneer for iOS 每小时耗电量低于3%。
+5. 持续的安全报告。Pioneer for iOS 会定期（至少每天）与Pioneer 服务器进行安全的信息交互，主要是从服务器中下载风险者身份信息并与用户自身数据库中的交互信息匹配，匹配完成后将以通知的方式告知用户自身的安全报告，使用户详细了解到自身的安全状态。
+
+#### 硬件要求
+
+​	Pioneer for iOS 对设备最低的系统版本要求是iOS 12.0，因此要安装并部署Pioneer 必须保证iPhone 的系统版本不低于iOS 12.0。如果您使用的iPhone 设备的iOS 系统版本低于12.0，不管是从达到Pioneer 的系统版本的需求还是希望您的iPhone 设备得益于iOS 高版本的安全补丁而更加安全，我们都建议您更新iOS系统版本以使用Pioneer for iOS。
+
+> 对于部署的软件要求，为了工程代码的稳定性，建议使用Xcode12.0 以上的版本打开Pioneer for iOS 项目工程并进行查看和部署。
+
+#### 部署指南
+
+​	完成部署首先需要拿到Pioneer 的项目工程包，其中包括Pioneer Framework 和Pioneer for iOS 文件夹。
+
+1. 使用Xcode 打开Pioneer for iOS -> Pioneer for iOS -> Pioneer for ios.xcodeproj 工程项目，并选择Trust and Open。
+2. 在TARGETS 菜单中的Signing & Capabilities 中编辑Team 以使用您的开发者账号以及Bundle Identifier。
+3. 选择项目目录中的“Pioneer.xcodeproj”，在Signing & Capabilities 中编辑Team以使用您的开发者账号以及Bundle Identifier。
+4. 将您的iPhone 设备连接至您的Mac 电脑并信任，Product，Run Pioneer for iOS即可将Pioneer 安装在您希望的iPhone 设备上。
+5. 在iPhone 设备上信任您的开发者账号即可开始使用Pioneer for iOS。
+
+#### 使用指南
+
+##### 1.注册
+
+​	Pioneer for iOS 在安装到iPhone 设备之后，首次使用必须注册。目前Pioneer系统要求用户使用手机号作为自身的保密身份标识，因此Pioneer 用户需要使用自己的手机号与服务器建立连接以进行注册。之后用户的注册状态会永久化储存在应用中，下次APP 开启后无需再次注册。
+
+##### 2.发现
+
+在Pioneer for iOS 的正常工作开始之前，应用会申请使用以下的用户隐私权限：
+
+​	蓝牙权限，包括后台使用权限。
+
+​	位置权限，包括后台使用权限，但鉴于不同用户的对此的意见，这并没有作为Pioneer 的必须权限。可选的，是否需要与最终Pioneer 的发行版本有关。
+
+​	通知权限。Pioneer 定期给出的用户安全报告需要定期通知给用户。
+
+​	Pioneer 在通过注册并获得蓝牙使用权限后即可按照标准的工作流程开始工作，并且无需一直占用前台，应用的内部技术实现保证了Pioneer 可以无限期地运行在后台而不被操作系统终止。但是请注意如果用户之后显示地关闭了该应用（例如用户在iPhone 近期运行应用菜单中上滑关闭了Pioneer 等），Pioneer for iOS将终止工作。
+
+##### 3.安全状态
+
+​	发现界面右上角的图标用于指示用户的安全状态，该图标会根据用户的接触
+
+安全状态自动变化，当用户为风险者时就会变化为红色以提示用户。正常的安全
+
+状态下，该图标的颜色是绿色的。
+
+##### 4.用户界面
+
+​	用户可以在个人信息界面看到注册该Pioneer 设备的手机号码和虚拟的唯一身份标识信息。同时Pioneer 允许用户自行查看应用记录的永久化数据，在菜单栏目中点击本地数据库即可查看数据库记录的用户交互信息。
+
+##### 5.感染者信息报告
+
+​	当用户在医疗机构被确诊时，医疗机构将向Pioneer 服务器申请一次性感染者身份信息上传令牌。用户将在医疗机构的帮助下，在Pioneer for iOS 中的Token界面输入一次性Token 令牌，接着Pioneer 将会收集用户的近14 天身份信息作为感染者的身份信息报告给Pioneer 服务器。
+
+##### 6.安全报告
+
+​	Pioneer 会定期（至少每天）从Pioneer 服务器下载风险者身份信息并与本地的数据库交互身份信息进行匹配，匹配结束后会根据用户的接触安全状况出具安全报告，并通过系统通知推送给用户是用户了解自身的安全状况。同时用户也可以进入Pioneer 用户界面查看自身的安全报告。
+
+​	此外，如果匹配时发现了用户与风险者进行过接触（本地数据库中有与风险者的交互记录），Pioneer 后台会自动将用户的近14 天身份信息作为风险者的身份信息报告给Pioneer 服务器。同时通知用户已经与风险者有过密切接触，提醒用户去医疗机构进行检查。
+
+------
+
+### 4.Pioneer Server 服务器指南
+
+#### 使用说明
+
+1. 服务器已经成功部署到远端服务器上，APP 时可直接与服务器进行交互。
+2. 远端系统为Linux 操作系统，配置Java JDK 15 环境变量。
+3. C/S 交互方式下采用基于SSL/TLS 协议的HTTPS 加密传输协议。
+4. 后端数据库采用的是MySQL Database，默认端口3306。在MySQL 中创建数据库Pioneer 作为与客户端APP 交互的数据库。
+5. 数据库采用AES 加密存储，并对加密内容十六进制编码。
+6. 数据库并发读取，采用MVCC 多版本并发控制。采用InnoDB 搜索引擎，解决了脏读、写阻塞、读并发等问题。
+7. 线程池的方式来实现对于多用户请求的安全处理。
+8. 设置线程连接超时、会话超时的模式，超时后自动与客户端断开连接。
+9. 服务器每天0：00 定时更新MatchingKeys。每一天结束后，在0：00 时刻，服务器会自动对Infected_users 和Contacted_users 表中的MatchingKey 进行更新。更新的目的是为了使数据库中保存的永远是有效的MatchingKey。
