@@ -1,6 +1,30 @@
-[TOC]
-
+- [1. Workflow工作流程](#1-workflow工作流程)
+- [2. Pioneer for Android 指南](#2-pioneer-for-android-指南)
+  - [简介](#简介)
+  - [硬件要求](#硬件要求)
+  - [部署指南](#部署指南)
+  - [使用指南](#使用指南)
+    - [1.注册](#1注册)
+    - [2.发现](#2发现)
+    - [3.感染者信息报告](#3感染者信息报告)
+    - [4.用户界面](#4用户界面)
+    - [5.安全报告](#5安全报告)
+- [3. Pioneer for IOS 指南](#3-pioneer-for-ios-指南)
+  - [简介](#简介-1)
+  - [主要特点](#主要特点)
+  - [硬件要求](#硬件要求-1)
+  - [部署指南](#部署指南-1)
+  - [使用指南](#使用指南-1)
+    - [1.注册](#1注册-1)
+    - [2.发现](#2发现-1)
+    - [3.安全状态](#3安全状态)
+    - [4.用户界面](#4用户界面-1)
+    - [5.感染者信息报告](#5感染者信息报告)
+    - [6.安全报告](#6安全报告)
+- [4.Pioneer Server 服务器指南](#4pioneer-server-服务器指南)
+  - [使用说明](#使用说明)
 ### 1. Workflow工作流程
+
 
 <p align="center">
     <img src="https://cdn.jsdelivr.net/gh/lunan0320/pics@main/images/202408/image-20240815195426801.png" alt="Centered Image">
@@ -23,7 +47,7 @@
 
 #### 硬件要求
 
-​	Pioneer for Android 对设备最低的系统版本要求是`Android 5.0`，因此要安装并部署Pioneer 必须保证iPhone 的系统版本不低于Android 5.0。
+​	Pioneer for Android 对设备最低的系统版本要求是`Android 5.0`，因此要安装并部署Pioneer 必须保证iPhone 的系统版本不低于Android 5.0
 
 - 如果您使用的iPhone 设备的Android 系统版本低于5.0，不管是从达到Pioneer 的系统版本的需求还是希望您的iPhone 设备得益于Android 高版本的安全补丁而更加安全，我们都建议您更新Android 系统版本以使用Pioneer for Android。
 - 对于部署的软件要求，为了工程代码的稳定性，建议使用`Android Studio`打开Pioneer for Android 项目工程并进行查看和部署。
@@ -135,6 +159,12 @@
 
 ​	Pioneer for iOS 在安装到iPhone 设备之后，首次使用必须注册。目前Pioneer系统要求用户使用手机号作为自身的保密身份标识，因此Pioneer 用户需要使用自己的手机号与服务器建立连接以进行注册。之后用户的注册状态会永久化储存在应用中，下次APP 开启后无需再次注册。
 
+<p align="center">
+    <img src="https://cdn.jsdelivr.net/gh/lunan0320/pics@main/images/202410202410181519667.png" width="400" height="400" alt="Centered Image">
+</p>
+
+
+
 ##### 2.发现
 
 在Pioneer for iOS 的正常工作开始之前，应用会申请使用以下的用户隐私权限：
@@ -144,6 +174,12 @@
 ​	位置权限，包括后台使用权限，但鉴于不同用户的对此的意见，这并没有作为Pioneer 的必须权限。可选的，是否需要与最终Pioneer 的发行版本有关。
 
 ​	通知权限。Pioneer 定期给出的用户安全报告需要定期通知给用户。
+
+<p align="center">
+    <img src="https://cdn.jsdelivr.net/gh/lunan0320/pics@main/images/202410202410181520705.png" width="300" height="500" alt="Centered Image">
+</p>
+
+
 
 ​	Pioneer 在通过注册并获得蓝牙使用权限后即可按照标准的工作流程开始工作，并且无需一直占用前台，应用的内部技术实现保证了Pioneer 可以无限期地运行在后台而不被操作系统终止。但是请注意如果用户之后显示地关闭了该应用（例如用户在iPhone 近期运行应用菜单中上滑关闭了Pioneer 等），Pioneer for iOS将终止工作。
 
@@ -159,15 +195,35 @@
 
 ​	用户可以在个人信息界面看到注册该Pioneer 设备的手机号码和虚拟的唯一身份标识信息。同时Pioneer 允许用户自行查看应用记录的永久化数据，在菜单栏目中点击本地数据库即可查看数据库记录的用户交互信息。
 
+<p align="center">
+    <img src="https://cdn.jsdelivr.net/gh/lunan0320/pics@main/images/202410202410181520653.png" width="300" height="500" alt="Centered Image">
+</p>
+
+
+
 ##### 5.感染者信息报告
 
 ​	当用户在医疗机构被确诊时，医疗机构将向Pioneer 服务器申请一次性感染者身份信息上传令牌。用户将在医疗机构的帮助下，在Pioneer for iOS 中的Token界面输入一次性Token 令牌，接着Pioneer 将会收集用户的近14 天身份信息作为感染者的身份信息报告给Pioneer 服务器。
+
+<p align="center">
+    <img src="https://cdn.jsdelivr.net/gh/lunan0320/pics@main/images/202410202410181544913.png" width="300" height="500" alt="Centered Image">
+</p>
+
+
+
+
 
 ##### 6.安全报告
 
 ​	Pioneer 会定期（至少每天）从Pioneer 服务器下载风险者身份信息并与本地的数据库交互身份信息进行匹配，匹配结束后会根据用户的接触安全状况出具安全报告，并通过系统通知推送给用户是用户了解自身的安全状况。同时用户也可以进入Pioneer 用户界面查看自身的安全报告。
 
 ​	此外，如果匹配时发现了用户与风险者进行过接触（本地数据库中有与风险者的交互记录），Pioneer 后台会自动将用户的近14 天身份信息作为风险者的身份信息报告给Pioneer 服务器。同时通知用户已经与风险者有过密切接触，提醒用户去医疗机构进行检查。
+
+<p align="center">
+    <img src="https://cdn.jsdelivr.net/gh/lunan0320/pics@main/images/202410202410181548116.png" width="300" height="500" alt="Centered Image">
+</p>
+
+
 
 ------
 
@@ -184,3 +240,16 @@
 7. 线程池的方式来实现对于多用户请求的安全处理。
 8. 设置线程连接超时、会话超时的模式，超时后自动与客户端断开连接。
 9. 服务器每天0：00 定时更新MatchingKeys。每一天结束后，在0：00 时刻，服务器会自动对Infected_users 和Contacted_users 表中的MatchingKey 进行更新。更新的目的是为了使数据库中保存的永远是有效的MatchingKey。
+
+
+
+<p align="center">
+    <img src="https://cdn.jsdelivr.net/gh/lunan0320/pics@main/images/202410202410181548234.png" width="500" height="300" alt="Centered Image">
+</p>
+
+
+
+<p align="center">
+    <img src="https://cdn.jsdelivr.net/gh/lunan0320/pics@main/images/202410202410181549410.png" width="500" height="300" alt="Centered Image">
+</p>
+
