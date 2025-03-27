@@ -9,14 +9,49 @@ import Foundation
 
 public class SM3Digest : GeneralDigest
 {
-    private static let DIGEST_LENGTH:Int = 32
-    private static let BLOCK_SIZE:Int = 64/4
-    
     private var V = Array<UInt32>(repeating:0,count:DIGEST_LENGTH/4)
     private var inwords = Array<UInt32>(repeating:0,count:BLOCK_SIZE)
     private var xOff:Int = 0
-    
     private var W = Array<UInt32>(repeating:0,count:68)
+    private static let DIGEST_LENGTH:Int = 32
+    private static let BLOCK_SIZE:Int = 64/4
+    
+
+    private func P0(x:UInt32) -> UInt32
+    {
+        let r9:UInt32 = ((x<<9) | (x>>(32-9)))
+        let r17:UInt32 = ((x<<17) | (x>>(32-17)))
+        return x^r9^r17
+    }
+    
+    private func P1(x:UInt32) -> UInt32
+    {
+        let r15:UInt32 = ((x<<15) | x>>(32-15))
+        let r23:UInt32 = ((x<<23) | x>>(32-23))
+        return x^r15^r23
+    }
+    
+    private func FF0(x:UInt32,y:UInt32,z:UInt32) -> UInt32
+    {
+        return x^y^z
+    }
+    
+    private func FF1(x:UInt32,y:UInt32,z:UInt32) -> UInt32
+    {
+        return ((x&y) | (x&z) | (y&z))
+    }
+    
+    private func GG0(x:UInt32,y:UInt32,z:UInt32) -> UInt32
+    {
+        return x^y^z
+    }
+    
+    private func GG1(x:UInt32,y:UInt32,z:UInt32) -> UInt32
+    {
+        return ((x&y) | ((~x)&z))
+    }
+
+
     private static var T:Array<UInt32> = {
         var init_t = Array<UInt32>(repeating:0,count:64)
         for i in 0..<16
@@ -68,21 +103,7 @@ public class SM3Digest : GeneralDigest
         copyIn(from:d)
     }
     
-    public override func reset()
-    {
-        super.reset()
-        V[0] = 0x7380166f
-        V[1] = 0x4914b2b9
-        V[2] = 0x172442d7
-        V[3] = 0xda8a0600
-        V[4] = 0xa96f30bc
-        V[5] = 0x163138aa
-        V[6] = 0xe38dee4d
-        V[7] = 0xb0fb0e4e
-        
-        xOff=0
-    }
-    
+
     public override func doFinal(outbytes: inout Array<UInt8>, outOff: Int) -> Int {
         finish()
         Util.intToBigEndian(srcIntArray: V, desByteArray: &outbytes, offset: outOff)
@@ -124,39 +145,22 @@ public class SM3Digest : GeneralDigest
         xOff += 1
     }
     
-    private func P0(x:UInt32) -> UInt32
+    public override func reset()
     {
-        let r9:UInt32 = ((x<<9) | (x>>(32-9)))
-        let r17:UInt32 = ((x<<17) | (x>>(32-17)))
-        return x^r9^r17
+        super.reset()
+        V[0] = 0x7380166f
+        V[1] = 0x4914b2b9
+        V[2] = 0x172442d7
+        V[3] = 0xda8a0600
+        V[4] = 0xa96f30bc
+        V[5] = 0x163138aa
+        V[6] = 0xe38dee4d
+        V[7] = 0xb0fb0e4e
+        xOff=0
     }
     
-    private func P1(x:UInt32) -> UInt32
-    {
-        let r15:UInt32 = ((x<<15) | x>>(32-15))
-        let r23:UInt32 = ((x<<23) | x>>(32-23))
-        return x^r15^r23
-    }
-    
-    private func FF0(x:UInt32,y:UInt32,z:UInt32) -> UInt32
-    {
-        return x^y^z
-    }
-    
-    private func FF1(x:UInt32,y:UInt32,z:UInt32) -> UInt32
-    {
-        return ((x&y) | (x&z) | (y&z))
-    }
-    
-    private func GG0(x:UInt32,y:UInt32,z:UInt32) -> UInt32
-    {
-        return x^y^z
-    }
-    
-    private func GG1(x:UInt32,y:UInt32,z:UInt32) -> UInt32
-    {
-        return ((x&y) | ((~x)&z))
-    }
+
+
     
     override func processBlock()
     {
