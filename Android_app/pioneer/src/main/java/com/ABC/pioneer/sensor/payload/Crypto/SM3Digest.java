@@ -5,17 +5,19 @@ public class SM3Digest
         extends GeneralDigest
 {
     private static final int DIGEST_LENGTH = 32;   // bytes
-    private static final int BLOCK_SIZE = 64 / 4; // of 32 bit ints (16 ints)
-
     private int[] V = new int[DIGEST_LENGTH / 4]; // in 32 bit ints (8 ints)
     private int[] inwords = new int[BLOCK_SIZE];
+
+    private static final int BLOCK_SIZE = 64 / 4; // of 32 bit ints (16 ints)
+
     private int xOff;
+    // Round constant T for processBlock() which is 32 bit integer rolled left up to (63 MOD 32) bit positions.
+    private static final int[] T = new int[64];
 
     // Work-bufs used within processBlock()
     private int[] W = new int[68];
 
-    // Round constant T for processBlock() which is 32 bit integer rolled left up to (63 MOD 32) bit positions.
-    private static final int[] T = new int[64];
+
 
     static
     {
@@ -33,14 +35,7 @@ public class SM3Digest
     }
 
 
-    /**
-     * Standard constructor
-     */
-    public SM3Digest()
-    {
-        reset();
-    }
-
+    
     /**
      * Copy constructor.  This will copy the state of the provided
      * message digest.
@@ -50,6 +45,15 @@ public class SM3Digest
         super(t);
         copyIn(t);
     }
+
+    /**
+     * Standard constructor
+     */
+    public SM3Digest()
+    {
+        reset();
+    }
+
 
     private void copyIn(SM3Digest t)
     {
@@ -69,10 +73,7 @@ public class SM3Digest
     }
 
 
-    public Memoable copy()
-    {
-        return new SM3Digest(this);
-    }
+   
 
     public void reset(Memoable other)
     {
@@ -82,6 +83,10 @@ public class SM3Digest
         copyIn(d);
     }
 
+    public Memoable copy()
+    {
+        return new SM3Digest(this);
+    }
 
     /**
      * reset the chaining variables
@@ -116,24 +121,7 @@ public class SM3Digest
     }
 
 
-    protected void processWord(byte[] in,
-                               int inOff)
-    {
-        // Note: Inlined for performance
-        // this.inwords[xOff] = Util.bigEndianToInt(in, inOff);
-        int n = (((in[inOff] & 0xff) << 24) |
-                ((in[++inOff] & 0xff) << 16) |
-                ((in[++inOff] & 0xff) << 8) |
-                ((in[++inOff] & 0xff)));
-
-        this.inwords[this.xOff] = n;
-        ++this.xOff;
-
-        if (this.xOff >= 16)
-        {
-            processBlock();
-        }
-    }
+    
 
     protected void processLength(long bitLength)
     {
@@ -157,27 +145,25 @@ public class SM3Digest
         this.inwords[this.xOff++] = (int)(bitLength);
     }
 
-/*
-3.4.2.  Constants
-   Tj = 79cc4519        when 0  < = j < = 15
-   Tj = 7a879d8a        when 16 < = j < = 63
-3.4.3.  Boolean function
-   FFj(X;Y;Z) = X XOR Y XOR Z                       when 0  < = j < = 15
-              = (X AND Y) OR (X AND Z) OR (Y AND Z) when 16 < = j < = 63
-   GGj(X;Y;Z) = X XOR Y XOR Z                       when 0  < = j < = 15
-              = (X AND Y) OR (NOT X AND Z)          when 16 < = j < = 63
-   The X, Y, Z in the fomular are words!GBP
-3.4.4.  Permutation function
-   P0(X) = X XOR (X <<<  9) XOR (X <<< 17)   ## ROLL, not SHIFT
-   P1(X) = X XOR (X <<< 15) XOR (X <<< 23)   ## ROLL, not SHIFT
-   The X in the fomular are a word.
-----------
-Each ROLL converted to Java expression:
-ROLL 9  :  ((x <<  9) | (x >>> (32-9))))
-ROLL 17 :  ((x << 17) | (x >>> (32-17)))
-ROLL 15 :  ((x << 15) | (x >>> (32-15)))
-ROLL 23 :  ((x << 23) | (x >>> (32-23)))
- */
+    protected void processWord(byte[] in,
+    int inOff)
+    {
+        // Note: Inlined for performance
+        // this.inwords[xOff] = Util.bigEndianToInt(in, inOff);
+        int n = (((in[inOff] & 0xff) << 24) |
+        ((in[++inOff] & 0xff) << 16) |
+        ((in[++inOff] & 0xff) << 8) |
+        ((in[++inOff] & 0xff)));
+
+        this.inwords[this.xOff] = n;
+        ++this.xOff;
+
+        if (this.xOff >= 16)
+        {
+        processBlock();
+        }
+    }
+
 
     private int P0(final int x)
     {
@@ -292,3 +278,25 @@ ROLL 23 :  ((x << 23) | (x >>> (32-23)))
         this.xOff = 0;
     }
 }
+
+/*
+3.4.2.  Constants
+   Tj = 79cc4519        when 0  < = j < = 15
+   Tj = 7a879d8a        when 16 < = j < = 63
+3.4.3.  Boolean function
+   FFj(X;Y;Z) = X XOR Y XOR Z                       when 0  < = j < = 15
+              = (X AND Y) OR (X AND Z) OR (Y AND Z) when 16 < = j < = 63
+   GGj(X;Y;Z) = X XOR Y XOR Z                       when 0  < = j < = 15
+              = (X AND Y) OR (NOT X AND Z)          when 16 < = j < = 63
+   The X, Y, Z in the fomular are words!GBP
+3.4.4.  Permutation function
+   P0(X) = X XOR (X <<<  9) XOR (X <<< 17)   ## ROLL, not SHIFT
+   P1(X) = X XOR (X <<< 15) XOR (X <<< 23)   ## ROLL, not SHIFT
+   The X in the fomular are a word.
+----------
+Each ROLL converted to Java expression:
+ROLL 9  :  ((x <<  9) | (x >>> (32-9))))
+ROLL 17 :  ((x << 17) | (x >>> (32-17)))
+ROLL 15 :  ((x << 15) | (x >>> (32-15)))
+ROLL 23 :  ((x << 23) | (x >>> (32-23)))
+ */
