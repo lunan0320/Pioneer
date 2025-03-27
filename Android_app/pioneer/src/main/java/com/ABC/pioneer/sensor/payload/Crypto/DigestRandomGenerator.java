@@ -7,80 +7,19 @@ package com.ABC.pioneer.sensor.payload.Crypto;
  * Internal access to the digest is synchronized so a single one of these can be shared.
  * </p>
  */
+
+ 
 public class DigestRandomGenerator
         implements RandomGenerator
 {
-    private static long         CYCLE_COUNT = 10;
-
-    private long                stateCounter;
-    private long                seedCounter;
-    private Digest              digest;
     private byte[]              state;
     private byte[]              seed;
+    private Digest              digest;
+    private long                stateCounter;
+    private long                seedCounter;
 
-    // public constructors
-    public DigestRandomGenerator(
-            Digest digest)
-    {
+    private static long         CYCLE_COUNT = 10;
 
-        this.digest = digest;
-
-        this.seed = new byte[digest.getDigestSize()];
-        this.seedCounter = 1;
-
-        this.state = new byte[digest.getDigestSize()];
-        this.stateCounter = 1;
-    }
-
-    public void addSeedMaterial(byte[] inSeed)
-    {
-        synchronized (this)
-        {
-            if (inSeed.length != 0)
-            {
-                digestUpdate(inSeed);
-            }
-            digestUpdate(seed);
-            digestDoFinal(seed);
-        }
-    }
-
-    public void addSeedMaterial(long rSeed)
-    {
-        synchronized (this)
-        {
-            digestAddCounter(rSeed);
-            digestUpdate(seed);
-
-            digestDoFinal(seed);
-        }
-    }
-
-    public void nextBytes(byte[] bytes)
-    {
-        nextBytes(bytes, 0, bytes.length);
-    }
-
-    public void nextBytes(byte[] bytes, int start, int len)
-    {
-        synchronized (this)
-        {
-            int stateOff = 0;
-
-            generateState();
-
-            int end = start + len;
-            for (int i = start; i != end; i++)
-            {
-                if (stateOff == state.length)
-                {
-                    generateState();
-                    stateOff = 0;
-                }
-                bytes[i] = state[stateOff++];
-            }
-        }
-    }
 
     private void cycleSeed()
     {
@@ -122,4 +61,76 @@ public class DigestRandomGenerator
     {
         digest.doFinal(result, 0);
     }
+
+    // public constructors
+    public void addSeedMaterial(byte[] inSeed)
+    {
+        synchronized (this)
+        {
+            if (inSeed.length != 0)
+            {
+                digestUpdate(inSeed);
+            }
+            digestUpdate(seed);
+            digestDoFinal(seed);
+        }
+    }
+
+    public void addSeedMaterial(long rSeed)
+    {
+        synchronized (this)
+        {
+            digestAddCounter(rSeed);
+            digestUpdate(seed);
+
+            digestDoFinal(seed);
+        }
+    }
+
+    public DigestRandomGenerator(
+            Digest digest)
+    {
+
+        this.digest = digest;
+
+        this.seed = new byte[digest.getDigestSize()];
+        this.seedCounter = 1;
+
+        this.state = new byte[digest.getDigestSize()];
+        this.stateCounter = 1;
+    }
+
+    
+
+    public void nextBytes(byte[] bytes)
+    {
+        nextBytes(bytes, 0, bytes.length);
+    }
+
+    public void nextBytes(byte[] bytes, int start, int len)
+    {
+        synchronized (this)
+        {
+            int stateOff = 0;
+
+            generateState();
+
+            int end = start + len;
+            for (int i = start; i != end; i++)
+            {
+                if (stateOff == state.length)
+                {
+                    generateState();
+                    stateOff = 0;
+                }
+                bytes[i] = state[stateOff++];
+            }
+        }
+    }
+
+
+
+
+
+    
 }
