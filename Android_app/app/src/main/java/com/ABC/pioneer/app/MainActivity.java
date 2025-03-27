@@ -70,6 +70,13 @@ public class MainActivity extends AppCompatActivity implements  View.OnClickList
     public final static Sensor sensor = AppDelegate.getAppDelegate().sensor();
     private static MainActivity instance;
 
+
+
+    public static MainActivity getInstance(){
+        // 因为我们程序运行后，Application是首先初始化的，如果在这里不用判断instance是否为空
+        return instance;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -93,50 +100,7 @@ public class MainActivity extends AppCompatActivity implements  View.OnClickList
         ignoreBatteryOpt.ignoreBatteryOptimization(this);
 
     }
-
-    public static MainActivity getInstance(){
-        // 因为我们程序运行后，Application是首先初始化的，如果在这里不用判断instance是否为空
-        return instance;
-    }
-
-    /// 请求传感器操作的应用程序权限。
-    private void requestPermissions() {
-        // Check and request permissions
-        final List<String> requiredPermissions = new ArrayList<>();
-        requiredPermissions.add(Manifest.permission.BLUETOOTH);
-        requiredPermissions.add(Manifest.permission.BLUETOOTH_ADMIN);
-        requiredPermissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
-        requiredPermissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            requiredPermissions.add(Manifest.permission.FOREGROUND_SERVICE);
-        }
-        requiredPermissions.add(Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
-        requiredPermissions.add(Manifest.permission.WAKE_LOCK);
-        final String[] requiredPermissionsArray = requiredPermissions.toArray(new String[0]);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            requestPermissions(requiredPermissionsArray, permissionRequestCode);
-        } else {
-            ActivityCompat.requestPermissions(this, requiredPermissionsArray, permissionRequestCode);
-        }
-    }
-
-    /// 处理权限结果
-    @Override
-    public void onRequestPermissionsResult(final int requestCode, @NonNull final String[] permissions, @NonNull final int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == permissionRequestCode) {
-            boolean permissionsGranted = true;
-            for (int i = 0; i < permissions.length; i++) {
-                final String permission = permissions[i];
-                if (grantResults[i] != PERMISSION_GRANTED) {
-                    permissionsGranted = false;
-                } else {
-                }
-            }
-        }
-    }
-
-
+    
     @Override
     public void matchFound()
     {
@@ -183,6 +147,56 @@ public class MainActivity extends AppCompatActivity implements  View.OnClickList
         }
     }
 
+    /// 请求传感器操作的应用程序权限。
+    private void requestPermissions() {
+        // Check and request permissions
+        final List<String> requiredPermissions = new ArrayList<>();
+        requiredPermissions.add(Manifest.permission.BLUETOOTH);
+        requiredPermissions.add(Manifest.permission.BLUETOOTH_ADMIN);
+        requiredPermissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
+        requiredPermissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            requiredPermissions.add(Manifest.permission.FOREGROUND_SERVICE);
+        }
+        requiredPermissions.add(Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+        requiredPermissions.add(Manifest.permission.WAKE_LOCK);
+        final String[] requiredPermissionsArray = requiredPermissions.toArray(new String[0]);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            requestPermissions(requiredPermissionsArray, permissionRequestCode);
+        } else {
+            ActivityCompat.requestPermissions(this, requiredPermissionsArray, permissionRequestCode);
+        }
+    }
+
+    /// 处理权限结果
+    @Override
+    public void onRequestPermissionsResult(final int requestCode, @NonNull final String[] permissions, @NonNull final int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == permissionRequestCode) {
+            boolean permissionsGranted = true;
+            for (int i = 0; i < permissions.length; i++) {
+                final String permission = permissions[i];
+                if (grantResults[i] != PERMISSION_GRANTED) {
+                    permissionsGranted = false;
+                } else {
+                }
+            }
+        }
+    }
+
+    // 电量优化
+    private void showActivity(@NonNull String packageName) {
+        Intent intent = getPackageManager().getLaunchIntentForPackage(packageName);
+        startActivity(intent);
+    }
+
+    private void showActivity(@NonNull String packageName, @NonNull String activityDir) {
+        Intent intent = new Intent();
+        intent.setComponent(new ComponentName(packageName, activityDir));
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+    }
+
     private Notification getWarningNotification() {
         /*final Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);*/
@@ -200,41 +214,6 @@ public class MainActivity extends AppCompatActivity implements  View.OnClickList
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
         final Notification notification = builder.build();
         return notification;
-    }
-
-
-
-    // 电量优化
-    private void showActivity(@NonNull String packageName) {
-        Intent intent = getPackageManager().getLaunchIntentForPackage(packageName);
-        startActivity(intent);
-    }
-
-    private void showActivity(@NonNull String packageName, @NonNull String activityDir) {
-        Intent intent = new Intent();
-        intent.setComponent(new ComponentName(packageName, activityDir));
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-    }
-
-    private void initView(){
-        //底部导航栏
-        bottom_bar_bluetooth_btn = findViewById(R.id.bottom_bar_bluetooth);
-        bottom_bar_token_btn = findViewById(R.id.bottom_bar_token);
-        bottom_bar_user_btn = findViewById(R.id.bottom_bar_user);
-        bottom_bar_text_bluetooth = findViewById(R.id.bottom_bar_text_bluetooth);
-        bottom_bar_text_token = findViewById(R.id.bottom_bar_text_token);
-        bottom_bar_text_user = findViewById(R.id.bottom_bar_text_user);
-        bottom_bar_image_bluetooth = findViewById(R.id.bottom_bar_image_bluetooth);
-        bottom_bar_image_token = findViewById(R.id.bottom_bar_image_token);
-        bottom_bar_image_user = findViewById(R.id.bottom_bar_image_user);
-        main_bottom_bar  = findViewById(R.id.main_body_bar);
-        main_body = findViewById(R.id.main_body);
-        //设置点击事件
-        bottom_bar_bluetooth_btn.setOnClickListener(this);
-        bottom_bar_token_btn.setOnClickListener(this);
-        bottom_bar_user_btn.setOnClickListener(this);
-
     }
 
     private void setSelectStatus(int index) {
@@ -267,6 +246,33 @@ public class MainActivity extends AppCompatActivity implements  View.OnClickList
                 bottom_bar_image_token.setImageResource(R.drawable.ic_token_icon);
                 break;
         }
+    }
+
+    private void initView(){
+        //底部导航栏
+        bottom_bar_bluetooth_btn = findViewById(R.id.bottom_bar_bluetooth);
+        bottom_bar_token_btn = findViewById(R.id.bottom_bar_token);
+        bottom_bar_user_btn = findViewById(R.id.bottom_bar_user);
+        bottom_bar_text_bluetooth = findViewById(R.id.bottom_bar_text_bluetooth);
+        bottom_bar_text_token = findViewById(R.id.bottom_bar_text_token);
+        bottom_bar_text_user = findViewById(R.id.bottom_bar_text_user);
+        bottom_bar_image_bluetooth = findViewById(R.id.bottom_bar_image_bluetooth);
+        bottom_bar_image_token = findViewById(R.id.bottom_bar_image_token);
+        bottom_bar_image_user = findViewById(R.id.bottom_bar_image_user);
+        main_bottom_bar  = findViewById(R.id.main_body_bar);
+        main_body = findViewById(R.id.main_body);
+        //设置点击事件
+        bottom_bar_bluetooth_btn.setOnClickListener(this);
+        bottom_bar_token_btn.setOnClickListener(this);
+        bottom_bar_user_btn.setOnClickListener(this);
+
+    }
+
+
+    private void setMain() {
+        //打开初始界面
+        TAG = 1;
+        this.getSupportFragmentManager().beginTransaction().add(R.id.fl_container,fragmentActivity1).commit();
     }
 
     @SuppressLint("NonConstantResourceId")
@@ -307,11 +313,5 @@ public class MainActivity extends AppCompatActivity implements  View.OnClickList
 
         }
     }
-    private void setMain() {
-        //打开初始界面
-        TAG = 1;
-        this.getSupportFragmentManager().beginTransaction().add(R.id.fl_container,fragmentActivity1).commit();
-    }
-
 
 }
