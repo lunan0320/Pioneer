@@ -21,6 +21,31 @@ import java.util.List;
 import java.util.Queue;
 
 public class BLEDevice extends Device {
+    /// BLE characteristics特征
+    private BluetoothGattCharacteristic signalCharacteristic = null;
+    private BluetoothGattCharacteristic payloadCharacteristic = null;
+    private BluetoothGattCharacteristic legacyPayloadCharacteristic = null;
+    protected byte[] signalCharacteristicWriteValue = null;
+    protected Queue<byte[]> signalCharacteristicWriteQueue = null;
+
+    private BluetoothGattCharacteristic modelCharacteristic = null;
+    private String model = null;
+    private BluetoothGattCharacteristic deviceNameCharacteristic = null;
+    private String deviceName = null;
+
+    /// 跟踪连接时间戳
+    private Date lastDiscoveredAt = null;
+    private Date lastConnectedAt = null;
+
+    /// 有效负载数据已与此对等方共享
+    protected final List<PayloadData> payloadSharingData = new ArrayList<>();
+
+    /// 跟踪写入时间戳
+    private Date lastWritePayloadAt = null;
+    private Date lastWriteRssiAt = null;
+    private Date lastWritePayloadSharingAt = null;
+
+
     // 伪设备地址，用于跟踪不断更改地址的Android设备。
     private PseudoDeviceAddress pseudoDeviceAddress = null;
     // 用于侦听属性更新事件的委托
@@ -46,30 +71,6 @@ public class BLEDevice extends Device {
     private TimeInterval ignoreForDuration = null;
     private Date ignoreUntil = null;
     private ScanRecord scanRecord = null;
-
-    /// BLE characteristics特征
-    private BluetoothGattCharacteristic signalCharacteristic = null;
-    private BluetoothGattCharacteristic payloadCharacteristic = null;
-    private BluetoothGattCharacteristic legacyPayloadCharacteristic = null;
-    protected byte[] signalCharacteristicWriteValue = null;
-    protected Queue<byte[]> signalCharacteristicWriteQueue = null;
-
-    private BluetoothGattCharacteristic modelCharacteristic = null;
-    private String model = null;
-    private BluetoothGattCharacteristic deviceNameCharacteristic = null;
-    private String deviceName = null;
-
-    /// 跟踪连接时间戳
-    private Date lastDiscoveredAt = null;
-    private Date lastConnectedAt = null;
-
-    /// 有效负载数据已与此对等方共享
-    protected final List<PayloadData> payloadSharingData = new ArrayList<>();
-
-    /// 跟踪写入时间戳
-    private Date lastWritePayloadAt = null;
-    private Date lastWriteRssiAt = null;
-    private Date lastWritePayloadSharingAt = null;
 
     public TimeInterval timeIntervalSinceConnected() {
         if (state() != DeviceState.connected) {
@@ -116,17 +117,7 @@ public class BLEDevice extends Device {
         }
     }
 
-    //外围设备信息
-    public BluetoothDevice peripheral() {
-        return peripheral;
-    }
-
-    public void peripheral(BluetoothDevice peripheral) {
-        if (this.peripheral != peripheral) {
-            this.peripheral = peripheral;
-            lastUpdatedAt = new Date();
-        }
-    }
+   
 
     //设备状态
     public DeviceState state() {
@@ -146,7 +137,72 @@ public class BLEDevice extends Device {
         return operatingSystem;
     }
 
-   
+
+    public void operatingSystem(DeviceOperatingSystem operatingSystem) {
+        lastUpdatedAt = new Date();
+        // 设置忽略时间戳
+        if (operatingSystem == DeviceOperatingSystem.ignore) {
+            if (ignoreForDuration == null) {
+                ignoreForDuration = TimeInterval.minute;
+            } else if (ignoreForDuration.value < TimeInterval.minutes(3).value) {
+                ignoreForDuration = new TimeInterval(Math.round(ignoreForDuration.value * 1.2));
+            }
+            ignoreUntil = new Date(lastUpdatedAt.getTime() + ignoreForDuration.millis());
+        } else {
+            ignoreUntil = null;
+        }
+        //如果已确认操作系统，则重置持续时间和请求计数的忽略
+        if (operatingSystem == DeviceOperatingSystem.ios || operatingSystem == DeviceOperatingSystem.android) {
+            ignoreForDuration = null;
+        }
+        //设置操作系统
+        if (this.operatingSystem != operatingSystem) {
+            this.operatingSystem = operatingSystem;
+            delegate.device(this, DeviceAttribute.operatingSystem);
+        }
+    }
+  
+    /// 时间判断之后忽略该设备
+    public boolean ignore() {
+        if (ignoreUntil == null) {
+            return false;
+        }
+        if (new Date().getTime() < ignoreUntil.getTime()) {
+            return true;
+        }
+        return false;
+    }
+
+    //外围设备信息
+    public BluetoothDevice peripheral() {
+        return peripheral;
+    }
+
+    public void peripheral(BluetoothDevice peripheral) {
+        if (this.peripheral != peripheral) {
+            this.peripheral = peripheral;
+            lastUpdatedAt = new Date();
+        }
+    }
+
+    public void immediateSendData(Data immediateSendData) {
+        this.immediateSendData = immediateSendData;
+    }
+
+    public Data immediateSendData() {
+        return immediateSendData;
+    }
+
+    public RSSI rssi() {
+        return rssi;
+    }
+
+    public void rssi(RSSI rssi) {
+        this.rssi = rssi;
+        lastUpdatedAt = new Date();
+        delegate.device(this, DeviceAttribute.rssi);
+    }
+
 
     public void legacyPayloadCharacteristic(BluetoothGattCharacteristic characteristic) {
         this.legacyPayloadCharacteristic = characteristic;
@@ -165,6 +221,26 @@ public class BLEDevice extends Device {
         lastUpdatedAt = new Date();
         delegate.device(this, DeviceAttribute.txPower);
     }
+    
+    public PayloadData payloadData() {
+        return payloadData;
+    }
+
+    public void payloadData(PayloadData payloadData) {
+        this.payloadData = payloadData;
+        lastPayloadDataUpdate = new Date();
+        lastUpdatedAt = lastPayloadDataUpdate;
+        delegate.device(this, DeviceAttribute.payloadData);
+    }
+
+    public TimeInterval timeIntervalSinceLastPayloadDataUpdate() {
+        if (lastPayloadDataUpdate == null) {
+            return TimeInterval.never;
+        }
+        return new TimeInterval((new Date().getTime() - lastPayloadDataUpdate.getTime()) / 1000);
+    }
+
+    
 
     public Calibration calibration() {
         if (txPower == null) {
