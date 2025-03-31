@@ -20,73 +20,111 @@ import com.ABC.pioneer.sensor.service.Connection;
 import java.io.IOException;
 
 public class RegisterActivity extends AppCompatActivity {
-    private Button regisbtn;
-    private EditText et_phone;
-    private String result=new String();
-    private final Context context = AppDelegate.getInstance();
+    private Button registerButton;
+    private EditText phoneEditText;
+    private String serverResponse = "";
+    private final Context appContext = AppDelegate.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-        final SharedPreferences sp_PhoneNumber = getSharedPreferences("PhoneNumber",MODE_PRIVATE);
-        regisbtn = (Button)findViewById(R.id.btn_register);
-        et_phone = (EditText)findViewById(R.id.et_phone_1);
+        
+        initializeViews();
+        setupRegisterButton();
+    }
 
-        // set register click listener
-        regisbtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final SharedPreferences sp_SecretKey = getSharedPreferences("SecretKey",MODE_PRIVATE);
-                final SecretKey secretKey = AppDelegate.secretKey;
-                String phone = et_phone.getText().toString();
-                if (phone.trim().length() != 11) {
-                    Toast.makeText(RegisterActivity.this, "请输入正确的手机号", Toast.LENGTH_LONG).show();
-                    return;
-                }
-                Thread thread = new Thread(new Runnable(){
-                    @Override
-                    public void run(){
-                        try {
-                            Connection connection = null;
-                            connection = new Connection(RegisterActivity.this);
-                            connection.ConnectToServer();
-                            result= connection.Register(phone, secretKey.base64EncodedString());
+    private void initializeViews() {
+        registerButton = findViewById(R.id.btn_register);
+        phoneEditText = findViewById(R.id.et_phone_1);
+    }
 
-                        }
-                        catch (IOException e) {
-                        }
-                    }
-                });
-                thread.start();
-                try {
-                    thread.join();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+    private void setupRegisterButton() {
+        registerButton.setOnClickListener(v -> handleRegistration());
+    }
 
-                if(result.equals("0")){
-                    Toast.makeText(RegisterActivity.this, "注册成功", Toast.LENGTH_LONG).show();
-                    SharedPreferences.Editor edit=sp_PhoneNumber.edit();
-                    edit.putString("PhoneNumber",phone);
-                    edit.apply();
-                }
-                else if(result.equals("1")) {
-                    Toast.makeText(RegisterActivity.this, "该手机号已被注册", Toast.LENGTH_LONG).show();
-                }
-                else if(result.equals("2")){
-                    Toast.makeText(RegisterActivity.this, "SecretKey重复，已重新生成，请再次点击注册", Toast.LENGTH_LONG).show();
-                    SharedPreferences.Editor edit=sp_SecretKey.edit();
-                    SecretKey SecretKey = GenerateKey.secretKey();
-                    edit.putString("SecretKey", SecretKey.base64EncodedString());
-                    edit.apply();
-                    final SpecificUsePayloadSupplier payloadDataSupplier = new SpecificUsePayloadSupplier(SecretKey);
-                    AppDelegate.sensor = new SensorArray(getApplicationContext(), payloadDataSupplier);
-                    // 将appDelegate添加为侦听器，以记录和启动传感器的检测事件
-                    AppDelegate.sensor.add(AppDelegate.getAppDelegate());
+    private void handleRegistration() {
+        String phoneNumber = phoneEditText.getText().toString().trim();
+        
+        if (!isValidPhoneNumber(phoneNumber)) {
+            showToast("请输入正确的手机号");
+            return;
+        }
 
-                }
+        performRegistration(phoneNumber);
+    }
+
+    private boolean isValidPhoneNumber(String phoneNumber) {
+        return phoneNumber.length() == 11;
+    }
+
+    private void performRegistration(String phoneNumber) {
+        SharedPreferences phonePrefs = getSharedPreferences("PhoneNumber", MODE_PRIVATE);
+        SharedPreferences secretKeyPrefs = getSharedPreferences("SecretKey", MODE_PRIVATE);
+        SecretKey currentSecretKey = AppDelegate.secretKey;
+
+        new Thread(() -> {
+            try {
+                Connection connection = new Connection(RegisterActivity.this);
+                connection.connectToServer();
+                serverResponse = connection.register(phoneNumber, currentSecretKey.base64EncodedString());
+            } catch (IOException e) {
+                // 处理连接异常
             }
-        });
+        }).start().joinWithUiThread(this::processRegistrationResult);
+    }
+
+    private void processRegistrationResult() {
+        switch (serverResponse) {
+            case "0":
+                handleSuccessfulRegistration();
+                break;
+            case "1":
+                showToast("该手机号已被注册");
+                break;
+            case "2":
+                handleSecretKeyConflict();
+                break;
+        }
+    }
+
+    private void handleSuccessfulRegistration() {
+        SharedPreferences.Editor editor = getSharedPreferences("PhoneNumber", MODE_PRIVATE).edit();
+        editor.putString("PhoneNumber", phoneEditText.getText().toString().trim());
+        editor.apply();
+        showToast("注册成功");
+    }
+
+    private void handleSecretKeyConflict() {
+        showToast("SecretKey重复，已重新生成，请再次点击注册");
+        
+        SharedPreferences.Editor editor = getSharedPreferences("SecretKey", MODE_PRIVATE).edit();
+        SecretKey newSecretKey = GenerateKey.secretKey();
+        editor.putString("SecretKey", newSecretKey.base64EncodedString());
+        editor.apply();
+
+        SpecificUsePayloadSupplier payloadSupplier = new SpecificUsePayloadSupplier(newSecretKey);
+        AppDelegate.sensor = new SensorArray(getApplicationContext(), payloadSupplier);
+        AppDelegate.sensor.add(AppDelegate.getAppDelegate());
+    }
+
+    private void showToast(String message) {
+        runOnUiThread(() -> 
+            Toast.makeText(RegisterActivity.this, message, Toast.LENGTH_LONG).show()
+        );
+    }
+
+    // 辅助方法：在UI线程执行回调
+    private interface UiThreadCallback {
+        void execute();
+    }
+
+    private static void joinWithUiThread(Thread thread, Activity activity, UiThreadCallback callback) {
+        try {
+            thread.join();
+            activity.runOnUiThread(callback::execute);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 }
