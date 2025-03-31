@@ -33,6 +33,23 @@ public class SpecificDatabase implements Database, DeviceDelegate {
     private final Map<TargetIdentifier, BLEDevice> database = new ConcurrentHashMap<>();
     private final ExecutorService queue = Executors.newSingleThreadExecutor();
 
+    /// 获取Android设备的伪设备地址
+    private PseudoDeviceAddress pseudoDeviceAddress(final ScanResult scanResult) {
+        final ScanRecord scanRecord = scanResult.getScanRecord();
+        if (scanRecord == null) {
+            return null;
+        }
+        // Pioneer伪设备地址
+        if (scanRecord.getManufacturerSpecificData(Configurations.manufacturerIdForSensor) != null) {
+            final byte[] data = scanRecord.getManufacturerSpecificData(Configurations.manufacturerIdForSensor);
+            if (data != null && data.length == 6) {
+                return new PseudoDeviceAddress(data);
+            }
+        }
+        // 未找到
+        return null;
+    }
+
     @Override
     public void add(final BLEDatabaseDelegate delegate) {
         delegates.add(delegate);
@@ -106,21 +123,9 @@ public class SpecificDatabase implements Database, DeviceDelegate {
         return device(bluetoothDevice);
     }
 
-    /// 获取Android设备的伪设备地址
-    private PseudoDeviceAddress pseudoDeviceAddress(final ScanResult scanResult) {
-        final ScanRecord scanRecord = scanResult.getScanRecord();
-        if (scanRecord == null) {
-            return null;
-        }
-        // Pioneer伪设备地址
-        if (scanRecord.getManufacturerSpecificData(Configurations.manufacturerIdForSensor) != null) {
-            final byte[] data = scanRecord.getManufacturerSpecificData(Configurations.manufacturerIdForSensor);
-            if (data != null && data.length == 6) {
-                return new PseudoDeviceAddress(data);
-            }
-        }
-        // 未找到
-        return null;
+    @Override
+    public List<BLEDevice> devices() {
+        return new ArrayList<>(database.values());
     }
 
     @Override
@@ -150,10 +155,7 @@ public class SpecificDatabase implements Database, DeviceDelegate {
         return device;
     }
 
-    @Override
-    public List<BLEDevice> devices() {
-        return new ArrayList<>(database.values());
-    }
+
 
     @Override
     public void delete(final BLEDevice device) {
@@ -182,6 +184,22 @@ public class SpecificDatabase implements Database, DeviceDelegate {
         });
     }
 
+
+
+    // BLEDeviceDelegate
+
+    @Override
+    public void device(final BLEDevice device, final DeviceAttribute didUpdate) {
+        queue.execute(new Runnable() {
+            @Override
+            public void run() {
+                for (BLEDatabaseDelegate delegate : delegates) {
+                    delegate.bleDatabaseDidUpdate(device, didUpdate);
+                }
+            }
+        });
+    }
+    
     @Override
     public PayloadSharingData payloadSharingData(final BLEDevice peer) {
         final RSSI rssi = peer.rssi();
@@ -266,17 +284,4 @@ public class SpecificDatabase implements Database, DeviceDelegate {
         return new PayloadSharingData(rssi, data);
     }
 
-    // BLEDeviceDelegate
-
-    @Override
-    public void device(final BLEDevice device, final DeviceAttribute didUpdate) {
-        queue.execute(new Runnable() {
-            @Override
-            public void run() {
-                for (BLEDatabaseDelegate delegate : delegates) {
-                    delegate.bleDatabaseDidUpdate(device, didUpdate);
-                }
-            }
-        });
-    }
 }

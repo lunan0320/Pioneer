@@ -202,6 +202,35 @@ public class SpecificTransmitter implements Transmitter, BluetoothStateManagerDe
 
     // Start and stop advert
 
+    private void stopAdvert(final BluetoothLeAdvertiser bluetoothLeAdvertiser, final AdvertiseCallback advertiseCallback, final BluetoothGattServer bluetoothGattServer, final Callback<Boolean> callback) {
+        operationQueue.execute(new Runnable() {
+            @Override
+            public void run() {
+                boolean result = true;
+                try {
+                    if (bluetoothLeAdvertiser != null && advertiseCallback != null) {
+                        bluetoothLeAdvertiser.stopAdvertising(advertiseCallback);
+                    }
+                } catch (Throwable e) {
+                    result = false;
+                }
+                try {
+                    if (bluetoothGattServer != null) {
+                        bluetoothGattServer.clearServices();
+                        bluetoothGattServer.close();
+                    }
+                } catch (Throwable e) {
+                    result = false;
+                }
+                if (result) {
+                } else {
+                }
+                callback.accept(result);
+            }
+        });
+    }
+
+    
     private void startAdvert(final BluetoothLeAdvertiser bluetoothLeAdvertiser, final Callback<Triple<Boolean, AdvertiseCallback, BluetoothGattServer>> callback) {
         operationQueue.execute(new Runnable() {
             @Override
@@ -266,33 +295,6 @@ public class SpecificTransmitter implements Transmitter, BluetoothStateManagerDe
         });
     }
 
-    private void stopAdvert(final BluetoothLeAdvertiser bluetoothLeAdvertiser, final AdvertiseCallback advertiseCallback, final BluetoothGattServer bluetoothGattServer, final Callback<Boolean> callback) {
-        operationQueue.execute(new Runnable() {
-            @Override
-            public void run() {
-                boolean result = true;
-                try {
-                    if (bluetoothLeAdvertiser != null && advertiseCallback != null) {
-                        bluetoothLeAdvertiser.stopAdvertising(advertiseCallback);
-                    }
-                } catch (Throwable e) {
-                    result = false;
-                }
-                try {
-                    if (bluetoothGattServer != null) {
-                        bluetoothGattServer.clearServices();
-                        bluetoothGattServer.close();
-                    }
-                } catch (Throwable e) {
-                    result = false;
-                }
-                if (result) {
-                } else {
-                }
-                callback.accept(result);
-            }
-        });
-    }
 
 
     @Override

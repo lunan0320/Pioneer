@@ -54,52 +54,6 @@ public class EventTimeIntervalLog extends DefaultSensorDelegate {
         write();
     }
 
-    private void write() {
-        final StringBuilder content = new StringBuilder("event,central,peripheral,count,mean,sd,min,max\n");
-        final List<String> payloadList = new ArrayList<>();
-        final String event = csv(eventType.name());
-        final String centralPayload = csv(payloadData.shortName());
-
-        for (String payload : payloadToSample.keySet()) {
-            if (payload.equals(payloadData.shortName())) {
-                continue;
-            }
-            payloadList.add(payload);
-        }
-
-        Collections.sort(payloadList);
-        for (String payload : payloadList) {
-            final Sample sample = payloadToSample.get(payload);
-
-            if (sample == null) {
-                continue;
-            }
-
-            if (sample.mean() == null || sample.standardDeviation() == null || sample.min() == null || sample.max() == null) {
-                continue;
-            }
-
-            content.append(event);
-            content.append(',');
-            content.append(centralPayload);
-            content.append(',');
-            content.append(csv(payload));
-            content.append(',');
-            content.append(sample.count());
-            content.append(',');
-            content.append(sample.mean());
-            content.append(',');
-            content.append(sample.standardDeviation());
-            content.append(',');
-            content.append(sample.min());
-            content.append(',');
-            content.append(sample.max());
-            content.append('\n');
-        }
-
-        textFile.overwrite(content.toString());
-    }
-
 
     // MARK:- SensorDelegate
 
@@ -152,5 +106,53 @@ public class EventTimeIntervalLog extends DefaultSensorDelegate {
             }
         }
     }
+    
+    private void write() {
+        final StringBuilder content = new StringBuilder("event,central,peripheral,count,mean,sd,min,max\n");
+        final List<String> payloadList = new ArrayList<>();
+        final String event = csv(eventType.name());
+        final String centralPayload = csv(payloadData.shortName());
+
+        for (String payload : payloadToSample.keySet()) {
+            if (payload.equals(payloadData.shortName())) {
+                continue;
+            }
+            payloadList.add(payload);
+        }
+
+        Collections.sort(payloadList);
+        for (String payload : payloadList) {
+            final Sample sample = payloadToSample.get(payload);
+
+            if (sample == null) {
+                continue;
+            }
+
+            if (sample.mean() == null || sample.standardDeviation() == null || sample.min() == null || sample.max() == null) {
+                continue;
+            }
+
+            content.append(event);
+            content.append(',');
+            content.append(centralPayload);
+            content.append(',');
+            content.append(csv(payload));
+            content.append(',');
+            content.append(sample.count());
+            content.append(',');
+            content.append(sample.mean());
+            content.append(',');
+            content.append(sample.standardDeviation());
+            content.append(',');
+            content.append(sample.min());
+            content.append(',');
+            content.append(sample.max());
+            content.append('\n');
+        }
+
+        textFile.overwrite(content.toString());
+    }
+
+
 
 }

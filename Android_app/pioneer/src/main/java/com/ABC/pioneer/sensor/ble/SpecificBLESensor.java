@@ -62,27 +62,8 @@ public class SpecificBLESensor implements BLESensor, BLEDatabaseDelegate, Blueto
         receiver.stop();
     }
 
-    public boolean immediateSend(Data data, TargetIdentifier targetIdentifier) {
-        return receiver.immediateSend(data, targetIdentifier);
-    }
-
-    public boolean immediateSendAll(Data data) {
-        return receiver.immediateSendAll(data);
-    }
 
     // BLEDatabaseDelegate
-
-    @Override
-    public void bleDatabaseDidCreate(final BLEDevice device) {
-        operationQueue.execute(new Runnable() {
-            @Override
-            public void run() {
-                for (SensorDelegate delegate : delegates) {
-                    delegate.sensor(SensorType.BLE, device.identifier);
-                }
-            }
-        });
-    }
 
     @Override
     public void bleDatabaseDidUpdate(final BLEDevice device, DeviceAttribute attribute) {
@@ -142,6 +123,28 @@ public class SpecificBLESensor implements BLESensor, BLEDatabaseDelegate, Blueto
             }
         }
     }
+
+    
+    public boolean immediateSend(Data data, TargetIdentifier targetIdentifier) {
+        return receiver.immediateSend(data, targetIdentifier);
+    }
+
+    public boolean immediateSendAll(Data data) {
+        return receiver.immediateSendAll(data);
+    }
+
+    @Override
+    public void bleDatabaseDidCreate(final BLEDevice device) {
+        operationQueue.execute(new Runnable() {
+            @Override
+            public void run() {
+                for (SensorDelegate delegate : delegates) {
+                    delegate.sensor(SensorType.BLE, device.identifier);
+                }
+            }
+        });
+    }
+
 
     @Override
     public void bleDatabaseDidDelete(BLEDevice device) {
